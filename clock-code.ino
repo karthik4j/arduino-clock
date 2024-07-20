@@ -12,7 +12,7 @@ bool btn_3 =0;
 
 int menu = 0;                   //a variable to choose the current screen
 int alarm_hour = 6;             //a variable to store the hour to ring the alarm
-int alarm_minute = 20;           //a variable to store the minute to ring the alarm
+int alarm_minute = 25;           //a variable to store the minute to ring the alarm
 
 bool alarm_trigger = false;  //a variable to constantly ring the alarm and make sure it does not turn off till the user dissmes the alarm
 int alarm_now = false;       //a variable to enable or disable the alarm
@@ -120,12 +120,12 @@ else
   if(btn_2 == LOW)
   {
     alarm_hour++;
-    delay(150);
+    delay(100);
     chirp();
    if(alarm_hour > 23){alarm_hour = 0;}
   }
   if(btn_3 == LOW)
-  {  delay(150);
+  {  delay(100);
       chirp();
     alarm_minute++;
     if(alarm_minute > 59){alarm_minute = 00;}
@@ -147,15 +147,15 @@ void set_brightness()
   {
     lcd.setCursor(0,1);
     lcd.print("Night mode: OFF");
-
+  // brightness=255;
 
   }
 
   if(btn_2 == LOW)
   {
     brightness = brightness+10;
-    delay(150);
-        chirp();
+    delay(100);
+    chirp();
     if(brightness >= 255)
     {
       brightness = 0;
@@ -165,7 +165,7 @@ void set_brightness()
   if(btn_3 == LOW)
   {
     nightmode++;
-    delay(150);
+    delay(100);
         chirp();
     if(nightmode >= 2){nightmode = 0;}
   }
@@ -183,23 +183,35 @@ void alarm_ring()
   while (alarm_trigger == true)
   {
     digitalWrite(13,1);
-    delay(100);
-    digitalWrite(13,0);
-    delay(100);
-    
-   
-    
-    digitalWrite(13,1);
-    delay(100);
-    digitalWrite(13,0);
-    delay(100);
-
-    analogWrite(9,0);
-    delay(250);
+    delay(50);
     analogWrite(9,255);
-   
-    
-  if(digitalRead(5) == LOW and digitalRead(4)==LOW)
+    digitalWrite(13,0);
+    analogWrite(9,0);
+    delay(50);
+
+    digitalWrite(13,1);
+    delay(50);
+    analogWrite(9,255);
+    digitalWrite(13,0);
+    analogWrite(9,0);
+    delay(50);
+
+    digitalWrite(13,1);
+    delay(50);
+    analogWrite(9,255);
+    digitalWrite(13,0);
+    analogWrite(9,0);
+    delay(50);
+    delay(1000);
+
+    digitalWrite(13,1);
+    delay(50);
+    analogWrite(9,255);
+    digitalWrite(13,0);
+    analogWrite(9,0);
+    delay(50);
+
+  if( digitalRead(4)==LOW)
    {
     digitalWrite(13,LOW);
     brightness = 255;
@@ -287,7 +299,7 @@ if(menu == 4){hourly_reminder();}
    {alarm_ring();}
   }
   
-  if(reminder == true)
+  if(reminder == true && nightmode != 1)
   {
     if(tm.Hour<=22 and tm.Hour >7 )
     {
