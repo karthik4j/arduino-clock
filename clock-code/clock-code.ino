@@ -21,15 +21,10 @@ int brightness = 255;        //a variable to set brigtness(default is full (255)
 int nightmode = 0;           //a variable to turn on or off night mode
 int reminder = 1;   
        
-
-//wire 0 - rx
-//wire 1 - tx 
-//wire 2 - gnd
 void setup()
 {
   Serial.begin(9600);
-  lcd.init();                      // initialize the lcd 
-  // Print a message to the LCD.
+  lcd.init();                      /
   lcd.backlight(); 
   lcd.setCursor(0,0);
   lcd.print("Alarm Clock");
@@ -43,22 +38,16 @@ void setup()
 
   if (RTC.chipPresent()) {
       Serial.println("The DS1307 is stopped.  Please run the SetTime");
-      Serial.println("example to initialize the time and begin running.");
-      Serial.println();
     } else {
-      Serial.println("DS1307 read error!  Please check the circuitry.");
+      Serial.println("DS1307 read error! Check SDA,SCL wiring");
       Serial.println();
     }
 }
 
-/*
-void showtime()
-{
- 
-      
-}
-*/
-void chirp()
+void chirp() 
+//chirp is the sound produced when any button is pressed. 
+//Nightmode is a flag that checks if the user want the clock to operate without disturbing anyone sleeping next to them 
+//also disables hourly reminders (will be covered later in the code)
 {
   if(nightmode != 1)
   digitalWrite(13,HIGH);
@@ -66,6 +55,9 @@ void chirp()
   digitalWrite(13,LOW);
 }
 void turn_on_alarm()
+//Menu to set or reset the alarm. 'On' means the alarm will set for the allocated time.
+//'off' means alarm won't go off even if time has been set by user.
+
 {
    if (alarm_now == 1)
  {
@@ -91,6 +83,9 @@ void turn_on_alarm()
   if(alarm_now >=2){alarm_now =0;}
 }
 void set_alarm()
+//Handles setting and reseting alarm time. 
+//Gets the time to set alarm from user using buttons on the clock
+
 {
   
   lcd.setCursor(4,0);
@@ -133,6 +128,13 @@ else
 } 
 
 void set_brightness()
+//Menu used to change/set the  brightness of the LCD screen.
+//Gets the value from user using one of the buttons.
+//User cannot change the brightness if the clock is in nightmode, i.e. DND Mode
+//Default brightness in nightmode is 20 (not percent)
+//Highest is 255.
+//User can set brightness 0 in day-mode (when nightmode is off)
+//This is not a bug, it is a feature.
 {
   lcd.setCursor(0,0);
   lcd.print("Brightness:  "+String(brightness)+"   ");
@@ -147,8 +149,6 @@ void set_brightness()
   {
     lcd.setCursor(0,1);
     lcd.print("Night mode: OFF");
-  // brightness=255;
-
   }
 
   if(btn_2 == LOW)
@@ -270,7 +270,6 @@ void hourly_reminder()
   lcd.clear();
  }
 
-//if(menu == 0){showtime();}
 
 if(menu == 1){set_alarm();}
 if(menu == 2){turn_on_alarm();}
