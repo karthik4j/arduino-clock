@@ -8,7 +8,7 @@ Over the course of developing this clock I learned how to use cad software to cr
 3) Alarm behaviour : Regular alarms turn off after a minute or ring every 5 or 2 minutes if the user does not wake up. I have added a feature where the alarm does not turn off until I press the button. This means the alarm can ring forever.
 # Detailed demonstration:
 I have uploaded a YouTube video to demonstrate all the features of the clock and how it is meant to be operated.
-
+Click this photo to view the video.
 [![Click this link](https://github.com/karthik4j/arduino-clock/blob/main/pictures-of-clock/top.jpg?raw=true)](https://www.youtube.com/watch?v=m_OycEsYVDI)
 
 # Components used :
