@@ -20,9 +20,16 @@ Click this photo to view the video.
 6) Prototype PCB board
 7) Panel mount push buttons x 3
 8) Wires for connecting the components
+9) 10K panel mount potentiometer (for setting the contrast of the LCD)
+
+# Power :
+The clock is powered using an external lithium ion battery. It has a built-in Boost converter to power the clock.The input voltage ranges from 2.7 to 4.2 as it is directly connected to the battery. The output voltage to the clock is 5V. It does not need constant power to maintain time as the RTC module has a cr2032 cell to keep time.
 
 # CAD files :
 I designed the case using FreeCAD. The Savefile and the STL files are included in this repository. I am using the Creality Ender 3 printer to print the files using PLA filament.
 
 # Assembly :
 All the components are connected together using 24 AWG wires. The connections on the PCB are made using 30 AWG solid core wires. I am using M3 nuts and bolts to assemble the two halves and the LCD screen.
+
+
+
