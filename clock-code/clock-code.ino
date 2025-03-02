@@ -1,9 +1,22 @@
+/*
+Credits for libraries used: 
+  DS1307RTC.h by Michael Margolis,Paul Stoffregen
+  LiquidCrystal_I2C.h by Frank de Brabander, Marco Schwartz
+  Wire.h by Arduino 
+  TimeLib.h by Paul Stoffregen
+
+
+ARDUINO CLOCK PROJECT DEVELOPED BY KARTHIK J
+GitHub: https://github.com/karthik4j/
+
+Wiring for external USB programmer: yellow -reset grey & white TX and RX black  GND
+*/
 #include <LiquidCrystal_I2C.h>
 LiquidCrystal_I2C lcd(0x27,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 #include <Wire.h>
 #include <TimeLib.h>
 #include <DS1307RTC.h>
-
+\
 //variables to store button state
 bool btn_1 =0; 
 bool btn_2 =0;
@@ -24,7 +37,7 @@ int reminder = 1;
 void setup()
 {
   Serial.begin(9600);
-  lcd.init();                      /
+  lcd.init();                      
   lcd.backlight(); 
   lcd.setCursor(0,0);
   lcd.print("Alarm Clock");
@@ -58,6 +71,8 @@ void turn_on_alarm()
 //Menu to set or reset the alarm. 'On' means the alarm will set for the allocated time.
 //'off' means alarm won't go off even if time has been set by user.
 
+
+//code to set or reset the alarm.
 {
    if (alarm_now == 1)
  {
@@ -72,7 +87,7 @@ void turn_on_alarm()
   lcd.setCursor(4,0) ;
   lcd.print("ALARM: OFF");
  }
-
+//get user input and toggle between on and off
  if(btn_2 == LOW)
  {
    delay(150);
@@ -83,11 +98,19 @@ void turn_on_alarm()
   if(alarm_now >=2){alarm_now =0;}
 }
 void set_alarm()
-//Handles setting and reseting alarm time. 
+//Menu to set alarm_time and alarm_hour.
+//Alarm time is set to current time so it's easier to adjust the alarm time.
+//This helps us to reduce the number of button presses to set the time.
 //Gets the time to set alarm from user using buttons on the clock
 
 {
   
+while( btn_1!= LOW)  { 
+  //need to include this as the button read value is not updated when stuck in a whie loop as the data is read from the main loop so we have to read it again
+  btn_1 = digitalRead(5);
+  btn_2 = digitalRead(4);
+  btn_3 = digitalRead(3);
+
   lcd.setCursor(4,0);
   lcd.print("SET ALARM: ");
 
@@ -112,6 +135,7 @@ else
   lcd.print("M:"+String(alarm_minute));
   }
 
+  //get user input  and set hour and minute accordingly 
   if(btn_2 == LOW)
   {
     alarm_hour++;
@@ -124,7 +148,8 @@ else
       chirp();
     alarm_minute++;
     if(alarm_minute > 59){alarm_minute = 00;}
-  } 
+  } }
+
 } 
 
 void set_brightness()
@@ -172,50 +197,52 @@ void set_brightness()
 
 }
 
-void alarm_ring()
-{   
+void alarm_ring(){
     alarm_trigger = true;
     lcd.clear();
 
     lcd.setCursor(4,0);
     lcd.print("TIME'S UP");
-    
+\    
+
   while (alarm_trigger == true)
   {
+    
+\
+    analogWrite(9,255);
+
     digitalWrite(13,1);
     delay(50);
-    analogWrite(9,255);
     digitalWrite(13,0);
-    analogWrite(9,0);
+    delay(50);
+    
+    digitalWrite(13,1);
+    delay(50);
+    digitalWrite(13,0);
+    delay(50);
+ 
+    
+    digitalWrite(13,1);
+    delay(50);
+    digitalWrite(13,0);
     delay(50);
 
     digitalWrite(13,1);
     delay(50);
-    analogWrite(9,255);
     digitalWrite(13,0);
-    analogWrite(9,0);
     delay(50);
+ 
+    analogWrite(9,0);
+    delay(600);
 
-    digitalWrite(13,1);
-    delay(50);
-    analogWrite(9,255);
-    digitalWrite(13,0);
-    analogWrite(9,0);
-    delay(50);
-    delay(1000);
 
-    digitalWrite(13,1);
-    delay(50);
-    analogWrite(9,255);
-    digitalWrite(13,0);
-    analogWrite(9,0);
-    delay(50);
 
   if( digitalRead(4)==LOW)
    {
     digitalWrite(13,LOW);
     brightness = 255;
     alarm_trigger = false;
+    alarm_now = false;
      lcd.clear();
    }
   } 
@@ -223,6 +250,11 @@ void alarm_ring()
 
 void hourly_reminder()
 {
+// hourly reminder is a feature that alerts the user about the passage of time.
+// it beeps every 30 minutes 
+// it does not beep if "nightmode" is turned on
+// it only beeps from 7 am to 11 pm 
+
   if(btn_2 == 0)
   {
     reminder = reminder+1;
@@ -250,7 +282,8 @@ void hourly_reminder()
  
  void loop()
 {
-  
+
+ //RTC module time structure
  tmElements_t tm;
  analogWrite(9,brightness);
 
@@ -260,6 +293,7 @@ void hourly_reminder()
   btn_2 = digitalRead(4);
   btn_3 = digitalRead(3);
 
+ // to toggle between the menus 
  if(btn_1 == 0)
  {
   menu = menu+1;
@@ -269,21 +303,30 @@ void hourly_reminder()
   {menu = 0;}
   lcd.clear();
  }
+//menu to set alarm time. Calls the function set_alarm() to do this.
+//also sets the alarm_hour and alarm_minute to current hour and minute so it's easier to set the time while setting the alarm.
+if(menu == 1) 
+  {
+    if(alarm_now == 0){alarm_hour=tm.Hour;alarm_minute=tm.Minute;}
+    set_alarm();
+  }
+if(menu == 2){turn_on_alarm();}  //after setting the alarm time, user can decide whether or not to turn on or off the alarm. 
+if(menu == 3){set_brightness();} //set brigtness and decide if you want to turn on "nightmode"
+if(menu == 4){hourly_reminder();} //turn on or off 'bi-hourly reminder according to the user's choice.
 
 
-if(menu == 1){set_alarm();}
-if(menu == 2){turn_on_alarm();}
-if(menu == 3){set_brightness();}
-if(menu == 4){hourly_reminder();}
-
- if(RTC.read(tm))
+ if(RTC.read(tm)) //checks if it can read the time. If the RTC module looses power at any point or if the on-board battery is depleted it will set the time to 255:255:255 to let the board know that time needs to be set again.
  {
 
-  if(tm.Hour > 22 and nightmode == 1)
+  //if nightmode is on then the LCD backlight is turned off so that it does not disturb the user's sleep.
+  //This only works if both nightmode is on and if it is night time (i.e. 22 hrs + or 10PM)
+  if(tm.Hour > 22 and nightmode == 1) 
   {
     brightness = 0;
   }
   
+//checks if the board was able to establish an connection with the RTC module and to check if the time is set properly.
+// If the battery is dead or if there are any issues with the wiring this will be false and will alert the user to set the program using the SetTime program.
   if (RTC.chipPresent()==false) 
   {
         lcd.setCursor(6,1);
@@ -291,14 +334,16 @@ if(menu == 4){hourly_reminder();}
         Serial.print("ERROR");
 
   }
-  if(alarm_now  == 1)
+  if(alarm_now  == 1) //alarm_now is a flag used to decide whether or not to ring the alarm for a set alarm time. 
   {
   
-    if(tm.Hour == alarm_hour and tm.Minute == alarm_minute and tm.Second == 0 )
-   {alarm_ring();}
+    if(tm.Hour == alarm_hour and tm.Minute == alarm_minute and tm.Second == 0 ) //checks if it's time to ring
+   {alarm_ring();} //rings the alarm once this is executed. It will not stop to ring unless the user wakes up or if the button is pressed. Can run indefinitely.
   }
   
   if(reminder == true && nightmode != 1)
+   // Checks if the user has enabled bi-hourly reminders and if nightmode is off. If both conditions are satisfied then the clock reminds the user every half an hour till 22:00:00 or 10PM
+   // Automatically starts alerting user once its morning again. 
   {
     if(tm.Hour<=22 and tm.Hour >7 )
     {
@@ -313,7 +358,7 @@ if(menu == 4){hourly_reminder();}
   }
  }
  }
-
+// MENU = 0 means to display just the time. No functions are called in this part. Only the background condtions are checked such as hourly reminder, alarm and nightmode conditons.
 if(menu ==0 )
 {
 
